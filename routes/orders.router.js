@@ -1,64 +1,82 @@
 const express = require('express');
-const faker = require('faker');
-
+const validatorHandler = require('../middlewares/validator.handler');
+const {
+  getOrderSchema,
+  createOrderSchema,
+  updateOrderSchema,
+} = require('../schemas/order.schema');
 const router = express.Router();
+const OrdersService = require('../services/order.service');
 
+const service = new OrdersService();
 router.get('/', (req, res) => {
-  const orders = [];
-  const { limit } = req.query;
-  const limitNumber = limit ? parseInt(limit, 10) : 10;
-  for (let index = 0; index < limitNumber; index++) {
-    orders.push({
-      id: index,
-      products: [
-        {
-          name: faker.commerce.productName(),
-          price: faker.commerce.price(),
-        },
-      ],
-      totalPrice: faker.commerce.price(),
-    });
-  }
+  const orders = service.find();
   res.json(orders);
 });
 
-router.get('/orders/:id', (req, res) => {
-  const { id } = req.params;
-  res.json({
-    id,
-    name: 'Orden 1',
-    totalPrice: 1500,
-  });
-});
+router.get(
+  '/:id',
+  validatorHandler(getOrderSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const order = service.findOne(id);
+      res.json({
+        order,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
-router.post('/', (req, res) => {
-  const body = req.body;
-  res.json({
-    message: 'Order created',
-    data: body,
-  });
-});
+router.post(
+  '/',
+  validatorHandler(createOrderSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const order = service.create(body);
+      res.json({
+        message: 'Order created',
+        order,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
-router.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  const body = req.body;
-  res.json({
-    message: 'Order updated',
-    data: {
-      id,
-      body,
-    },
-  });
-});
+router.patch(
+  '/:id',
+  validatorHandler(getOrderSchema, 'params'),
+  validatorHandler(updateOrderSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+      const order = service.update(id, body);
+      res.json({
+        message: 'Order updated',
+        order,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  res.json({
-    message: 'Order deleted',
-    data: {
-      id,
-    },
-  });
-});
+router.delete(
+  '/:id',
+  validatorHandler(getOrderSchema, 'params'),
+  async (req, res) => {
+    const { id } = req.params;
+    const order = service.delete(id);
+    res.json({
+      message: 'Order deleted',
+      order,
+    });
+  }
+);
 
 module.exports = router;
