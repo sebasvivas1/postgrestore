@@ -20,22 +20,19 @@ router.post('/', (req, res) => {
 router.patch('/:id', (req, res) => {
   const { id } = req.params;
   const body = req.body;
+  const category = service.update(id, body);
   res.json({
     message: 'Category updated',
-    data: {
-      id,
-      body,
-    },
+    category
   });
 });
 
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
+  const category = service.delete(id);
   res.json({
     message: 'Category deleted',
-    data: {
-      id,
-    },
+    category
   });
 });
 

@@ -1,63 +1,46 @@
 const express = require('express');
-const faker = require('faker');
-
 const router = express.Router();
+const OrdersService = require('../services/order.service');
 
+const service = new OrdersService();
 router.get('/', (req, res) => {
-  const orders = [];
-  const { limit } = req.query;
-  const limitNumber = limit ? parseInt(limit, 10) : 10;
-  for (let index = 0; index < limitNumber; index++) {
-    orders.push({
-      id: index,
-      products: [
-        {
-          name: faker.commerce.productName(),
-          price: faker.commerce.price(),
-        },
-      ],
-      totalPrice: faker.commerce.price(),
-    });
-  }
+  const orders = service.find();
   res.json(orders);
 });
 
 router.get('/orders/:id', (req, res) => {
   const { id } = req.params;
+  const order = service.findOne(id);
   res.json({
-    id,
-    name: 'Orden 1',
-    totalPrice: 1500,
+    order
   });
 });
 
 router.post('/', (req, res) => {
   const body = req.body;
+  const order = service.create(body);
   res.json({
     message: 'Order created',
-    data: body,
+    order
   });
 });
 
 router.patch('/:id', (req, res) => {
   const { id } = req.params;
   const body = req.body;
+  const order = service.update(id, body);
   res.json({
     message: 'Order updated',
-    data: {
-      id,
-      body,
-    },
+    order
   });
 });
 
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
+  const order = service.delete(id);
   res.json({
     message: 'Order deleted',
-    data: {
-      id,
-    },
+    order
   });
 });
 
