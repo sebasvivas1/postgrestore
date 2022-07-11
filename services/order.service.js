@@ -1,4 +1,4 @@
-const faker = 'faker';
+const faker = require('faker');
 class OrderService {
   constructor() {
     this.orders = [];
@@ -25,30 +25,30 @@ class OrderService {
   create(body) {
     const newOrder = {
       id: faker.datatype.uuid(),
-      ...body
-    }
+      ...body,
+    };
     return this.orders.push(newOrder);
   }
   update(id, body) {
     const index = this.orders.findIndex((item) => item.id === id);
-    if(index === -1) {
-      return new Error("order not found");
+    if (index === -1) {
+      return new Error('order not found');
     }
     const order = this.orders[index];
     const newOrder = {
       ...order,
-      ...body
-    }
+      ...body,
+    };
     this.orders[index] = newOrder;
-    return newOrder
+    return newOrder;
   }
   delete(id) {
     const index = this.orders.findIndex((item) => item.id === id);
-    if(index === -1) {
-      return new Error("order not found");
+    if (index === -1) {
+      return new Error('order not found');
     }
     this.orders.splice(index, 1);
-    return {id}
+    return { id };
   }
 }
 
