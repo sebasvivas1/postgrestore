@@ -10,9 +10,13 @@ const UsersService = require('./../services/user.service');
 const router = express.Router();
 const service = new UsersService();
 
-router.get('/', async (req, res) => {
-  const users = await service.find();
-  res.json(users);
+router.get('/', async (req, res, next) => {
+  try {
+    const users = await service.find();
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.get(
@@ -21,7 +25,7 @@ router.get(
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const user = service.findOne(id);
+      const user = await service.findOne(id);
       res.status(200).json(user);
     } catch (err) {
       next(err);
@@ -32,12 +36,14 @@ router.get(
 router.post(
   '/',
   validatorHandler(createUserSchema, 'body'),
-  async (req, res) => {
-    const body = req.body;
-    res.json({
-      message: 'User created',
-      data: body,
-    });
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const user = await service.create(body);
+      res.json({ user });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
@@ -49,13 +55,8 @@ router.patch(
     try {
       const { id } = req.params;
       const body = req.body;
-      res.json({
-        message: 'User updated',
-        data: {
-          id,
-          body,
-        },
-      });
+      const user = await service.update(id, body);
+      res.json({ user });
     } catch (err) {
       next(err);
     }
@@ -65,14 +66,14 @@ router.patch(
 router.delete(
   '/:id',
   validatorHandler(getUserSchema, 'params'),
-  async (req, res) => {
-    const { id } = req.params;
-    res.json({
-      message: 'User deleted',
-      data: {
-        id,
-      },
-    });
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const user = await service.delete(id);
+      res.json({ user });
+    } catch (error) {
+      next(error);
+    }
   }
 );
 

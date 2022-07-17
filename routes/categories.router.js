@@ -10,9 +10,18 @@ const {
 const router = express.Router();
 const service = new CategoryService();
 
-router.get('/', (req, res) => {
-  const categories = service.find();
+router.get('/', async (req, res) => {
+  const categories = await service.find();
   res.json(categories);
+});
+
+router.get('/:id', async (req, res, next) => {
+  const { id } = req.params;
+  const category = await service.findOne(id);
+  if (!category) {
+    return next('Category not found');
+  }
+  res.json(category);
 });
 
 router.post(
