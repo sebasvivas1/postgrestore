@@ -6,6 +6,7 @@ const {
   errorHandler,
   logErrors,
   boomErrorHandler,
+  ormErrorHandler,
 } = require('./middlewares/error.handler');
 const port = process.env.PORT || 3000;
 
@@ -27,6 +28,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 routerAPI(app);
 app.use(logErrors);
+app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 

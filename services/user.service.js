@@ -4,7 +4,9 @@ class UserService {
   constructor() {}
   generate() {}
   async find() {
-    const res = await models.User.findAll();
+    const res = await models.User.findAll({
+      include: ['customer'],
+    });
     return res;
   }
   async findOne(id) {
